@@ -1,407 +1,89 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>CleanSlateAI — Debt Clarity MVP</title>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CleanSlateAI Backend</title>
   <style>
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+        Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
       margin: 0;
-      padding: 24px;
-      background: #0b0b0b;
-      color: #f5f5f5;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
     }
-    .wrap { max-width: 1000px; margin: 0 auto; }
-    h1 { margin: 0 0 6px; font-size: 26px; }
-    .sub { margin: 0 0 18px; color: #bdbdbd; }
-
-    .grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
-    @media (min-width: 900px) {
-      .grid { grid-template-columns: 1fr 1fr; }
+    .container {
+      max-width: 640px;
+      padding: 32px;
+      background: #020617;
+      border-radius: 12px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
     }
-
-    .card {
-      background: #141414;
-      border: 1px solid #2a2a2a;
-      border-radius: 14px;
-      padding: 16px;
+    h1 {
+      margin-top: 0;
+      font-size: 24px;
+      color: #38bdf8;
     }
-
-    label { display:block; font-size:12px; color:#bdbdbd; margin-bottom:6px; }
-    input, textarea {
-      width:100%;
-      box-sizing:border-box;
-      border-radius:10px;
-      border:1px solid #2a2a2a;
-      background:#0f0f0f;
-      color:#f5f5f5;
-      padding:10px;
+    p {
+      line-height: 1.6;
+      color: #cbd5f5;
     }
-    textarea { min-height:220px; resize:vertical; }
-
-    .row { display:flex; gap:10px; margin-top:12px; }
-    .row > div { flex:1; }
-
-    button {
-      border:0;
-      border-radius:12px;
-      padding:12px;
-      background:#f5f5f5;
-      color:#0b0b0b;
-      font-weight:700;
-      cursor:pointer;
+    code {
+      background: #020617;
+      padding: 6px 10px;
+      border-radius: 6px;
+      color: #22d3ee;
+      display: inline-block;
+      margin-top: 8px;
     }
-    button:disabled { opacity:.6; cursor:not-allowed; }
-
-    .btnRow { display:flex; gap:10px; flex-wrap: wrap; margin-top:12px; }
-    .btnSmall {
-      width:auto;
-      padding:10px 14px;
-      border-radius:10px;
-      background:#f5f5f5;
-      color:#0b0b0b;
-      font-weight:700;
-      cursor:pointer;
-    }
-
-    .muted { color:#bdbdbd; font-size:12px; }
-    .pill {
-      display:inline-block;
-      padding:4px 10px;
-      border-radius:999px;
-      border:1px solid #2a2a2a;
-      background:#0f0f0f;
-      font-size:12px;
-      color:#d7d7d7;
-    }
-    .k { color:#bdbdbd; font-size:12px; }
-    .v { font-size:14px; }
-    .hr { height:1px; background:#2a2a2a; margin:12px 0; }
-
-    ul { margin:8px 0 0 18px; }
-    pre {
-      white-space: pre-wrap;
-      word-break: break-word;
-      background:#0f0f0f;
-      border:1px solid #2a2a2a;
-      padding:12px;
-      border-radius:12px;
-      font-size:12px;
-      color:#dcdcdc;
-    }
-
-    .ok { color:#7CFC98; }
-    .err { color:#FF7B7B; }
-
-    .toast {
-      position: fixed;
-      bottom: 18px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #0f0f0f;
-      border: 1px solid #2a2a2a;
-      color: #f5f5f5;
+    .status {
+      margin-top: 16px;
       padding: 10px 14px;
-      border-radius: 999px;
-      font-size: 13px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .2s ease;
+      border-radius: 8px;
+      background: rgba(34, 211, 238, 0.1);
+      color: #22d3ee;
+      font-weight: 500;
     }
-    .toast.show { opacity: 1; }
+    footer {
+      margin-top: 24px;
+      font-size: 13px;
+      color: #94a3b8;
+    }
   </style>
 </head>
-
 <body>
-<div class="wrap">
-  <h1>CleanSlateAI — Debt Clarity MVP</h1>
-  <p class="sub">Paste collection messages. Get calm clarity and next steps.</p>
+  <div class="container">
+    <h1>CleanSlateAI — Backend</h1>
 
-  <!-- INPUT -->
-  <div class="grid">
-    <div class="card">
-      <label>Paste messages</label>
-      <textarea id="rawText" placeholder="Paste SMS/WhatsApp/Email text here…"></textarea>
+    <p>
+      This is the backend service for <strong>CleanSlateAI</strong>, a calm,
+      structured debt-clarity assistant.
+    </p>
 
-      <div class="row">
-        <div>
-          <label>Salary</label>
-          <input id="salary" inputmode="numeric" placeholder="9000">
-        </div>
-        <div>
-          <label>Essentials</label>
-          <input id="essentials" inputmode="numeric" placeholder="6000">
-        </div>
-      </div>
+    <p>
+      The service is running correctly.  
+      API responses are JSON-only and intended for programmatic access.
+    </p>
 
-      <div class="btnRow">
-        <button id="btn">Analyze</button>
-      </div>
+    <p>
+      Active endpoint:
+      <br />
+      <code>POST /api/generate-plan</code>
+    </p>
 
-      <p class="muted" id="status" style="margin-top:10px;"></p>
+    <div class="status">
+      Status: ✅ Operational
     </div>
 
-    <!-- SUMMARY -->
-    <div class="card">
-      <div style="display:flex;gap:12px;flex-wrap:wrap;">
-        <span class="pill" id="pill">—</span>
-        <span class="pill" id="score">—</span>
-        <span class="pill" id="risk">—</span>
-      </div>
-
-      <div class="hr"></div>
-      <div class="k">Plain English</div>
-      <div class="v" id="plain">—</div>
-
-      <div class="hr"></div>
-      <div class="k">What to do first</div>
-      <div class="v" id="first">—</div>
-
-      <div class="hr"></div>
-      <div class="k">Why this matters</div>
-      <div class="v" id="why">—</div>
-
-      <div class="btnRow">
-        <button class="btnSmall" id="copySummary" disabled>Copy summary</button>
-        <button class="btnSmall" id="copyPlan" disabled>Copy 7-day plan</button>
-      </div>
-    </div>
+    <footer>
+      CleanSlateAI © 2025<br />
+      This endpoint does not serve a UI.
+    </footer>
   </div>
-
-  <!-- DETAILS -->
-  <div class="grid" style="margin-top:14px;">
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
-        <div class="k">Debts</div>
-        <button class="btnSmall" id="copyDebts" disabled>Copy debts</button>
-      </div>
-      <div id="debts">—</div>
-
-      <div class="hr"></div>
-
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
-        <div class="k">Collection messages</div>
-        <button class="btnSmall" id="copyMsgs" disabled>Copy messages</button>
-      </div>
-      <div id="msgs">—</div>
-    </div>
-
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
-        <div class="k">Negotiation scripts (Default)</div>
-        <button class="btnSmall" id="copyScripts" disabled>Copy script</button>
-      </div>
-      <div id="scripts">—</div>
-
-      <div class="hr"></div>
-
-      <div class="k">Next 7 days</div>
-      <div id="plan">—</div>
-    </div>
-  </div>
-
-  <!-- DEBUG -->
-  <div class="card" style="margin-top:14px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
-      <div class="k">Debug</div>
-      <div class="btnRow" style="margin-top:0;">
-        <button class="btnSmall" id="toggleJson">Show raw JSON</button>
-        <button class="btnSmall" id="copyJson" disabled>Copy JSON</button>
-      </div>
-    </div>
-    <div id="jsonWrap" style="display:none;margin-top:12px;">
-      <pre id="json">—</pre>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast">Copied ✅</div>
-
-<script>
-  const $ = (id) => document.getElementById(id);
-
-  let latest = null;
-
-  function toNumberOrNull(v){
-    const n = Number(String(v || "").trim());
-    return Number.isFinite(n) ? n : null;
-  }
-
-  function showToast(text){
-    const t = $("toast");
-    t.textContent = text || "Copied ✅";
-    t.classList.add("show");
-    setTimeout(() => t.classList.remove("show"), 1200);
-  }
-
-  async function copyText(text){
-    try{
-      await navigator.clipboard.writeText(text);
-      showToast("Copied ✅");
-    }catch(e){
-      // fallback for older permissions
-      const ta = document.createElement("textarea");
-      ta.value = text;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      document.body.removeChild(ta);
-      showToast("Copied ✅");
-    }
-  }
-
-  function enableCopyButtons(on){
-    const ids = ["copySummary","copyPlan","copyDebts","copyMsgs","copyScripts","copyJson"];
-    ids.forEach(id => { $(id).disabled = !on; });
-  }
-
-  $("btn").onclick = async () => {
-    $("status").textContent = "Working…";
-    enableCopyButtons(false);
-
-    const payload = {
-      rawText: $("rawText").value || "",
-      salary: toNumberOrNull($("salary").value),
-      essentials: toNumberOrNull($("essentials").value),
-    };
-
-    if(!payload.rawText.trim()){
-      $("status").innerHTML = '<span class="err">Paste some text first.</span>';
-      return;
-    }
-
-    try{
-      const res = await fetch("/api/generate-plan", {
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify(payload)
-      });
-
-      const d = await res.json();
-
-      if(!res.ok){
-        $("status").innerHTML = '<span class="err">Server error:</span> ' + (d?.error || "Unknown");
-        return;
-      }
-
-      latest = d;
-
-      $("pill").textContent = d?.calm_summary?.status || "—";
-      $("score").textContent = (d?.risk_assessment?.stability_score_0_to_100 ?? "—");
-      $("risk").textContent = d?.risk_assessment?.immediate_legal_risk || "—";
-      $("plain").textContent = d?.calm_summary?.plain_english || "—";
-      $("first").textContent = d?.calm_summary?.what_to_do_first || "—";
-      $("why").textContent = d?.calm_summary?.why_this_matters || "—";
-
-      // Debts list
-      const debts = d?.extracted?.debts || [];
-      $("debts").innerHTML = debts.length
-        ? "<ul>" + debts.map(x =>
-          `<li><b>${x.account_name}</b> — min: ${x.minimum_due ?? "—"}, total: ${x.total_due ?? "—"} ${x.currency ?? ""}</li>`
-        ).join("") + "</ul>"
-        : "—";
-
-      // Messages list
-      const msgs = d?.extracted?.collection_messages || [];
-      $("msgs").innerHTML = msgs.length
-        ? "<ul>" + msgs.map(x => `<li><b>${x.risk_tag}</b>: ${x.text}</li>`).join("") + "</ul>"
-        : "—";
-
-      // Plan list
-      const plan = d?.next_7_days_plan || [];
-      $("plan").innerHTML = plan.length
-        ? "<ul>" + plan.map(x =>
-          `<li><b>Day ${x.day}</b>: ${x.action}${x.estimated_cost != null ? ` <span class="pill">cost: ${x.estimated_cost}</span>` : ""}</li>`
-        ).join("") + "</ul>"
-        : "—";
-
-      // Scripts (default)
-      const s = d?.negotiation_scripts?.default || null;
-      $("scripts").innerHTML = s
-        ? `<div class="muted">When to contact: ${s.when_to_contact || "—"}</div>
-           <div style="margin-top:10px;"><b>What to say</b><ul>${(s.what_to_say||[]).map(x=>`<li>${x}</li>`).join("")}</ul></div>
-           <div style="margin-top:10px;"><b>What NOT to say</b><ul>${(s.what_not_to_say||[]).map(x=>`<li>${x}</li>`).join("")}</ul></div>`
-        : "—";
-
-      $("json").textContent = JSON.stringify(d, null, 2);
-
-      enableCopyButtons(true);
-      $("status").innerHTML = '<span class="ok">Done.</span>';
-
-    }catch(e){
-      $("status").innerHTML = '<span class="err">Network/runtime error.</span>';
-    }
-  };
-
-  // Copy handlers
-  $("copySummary").onclick = () => {
-    if(!latest) return;
-    const text =
-`CleanSlateAI — Summary
-Status: ${latest.calm_summary.status}
-Plain English: ${latest.calm_summary.plain_english}
-
-What to do first: ${latest.calm_summary.what_to_do_first}
-Why this matters: ${latest.calm_summary.why_this_matters}
-
-Legal risk: ${latest.risk_assessment.immediate_legal_risk}
-Collection pressure: ${latest.risk_assessment.collection_pressure_level}
-Stability score: ${latest.risk_assessment.stability_score_0_to_100 ?? "—"}`;
-    copyText(text);
-  };
-
-  $("copyPlan").onclick = () => {
-    if(!latest) return;
-    const plan = latest.next_7_days_plan || [];
-    const lines = plan.map(p => `Day ${p.day}: ${p.action}${p.estimated_cost != null ? ` (cost: ${p.estimated_cost})` : ""}`);
-    copyText("CleanSlateAI — Next 7 Days\n" + lines.join("\n"));
-  };
-
-  $("copyDebts").onclick = () => {
-    if(!latest) return;
-    const debts = latest.extracted.debts || [];
-    const lines = debts.map(d => `${d.account_name} | min: ${d.minimum_due ?? "—"} | total: ${d.total_due ?? "—"} | ${d.currency ?? ""}`.trim());
-    copyText("CleanSlateAI — Debts\n" + (lines.length ? lines.join("\n") : "—"));
-  };
-
-  $("copyMsgs").onclick = () => {
-    if(!latest) return;
-    const msgs = latest.extracted.collection_messages || [];
-    const lines = msgs.map(m => `${m.risk_tag.toUpperCase()}: ${m.text}`);
-    copyText("CleanSlateAI — Collection Messages\n" + (lines.length ? lines.join("\n") : "—"));
-  };
-
-  $("copyScripts").onclick = () => {
-    if(!latest) return;
-    const s = latest.negotiation_scripts.default;
-    const text =
-`CleanSlateAI — Negotiation Script (Default)
-When to contact: ${s.when_to_contact}
-
-What to say:
-- ${(s.what_to_say||[]).join("\n- ")}
-
-What NOT to say:
-- ${(s.what_not_to_say||[]).join("\n- ")}
-
-Follow up window (days): ${s.follow_up_window_days}`;
-    copyText(text);
-  };
-
-  $("copyJson").onclick = () => {
-    if(!latest) return;
-    copyText(JSON.stringify(latest, null, 2));
-  };
-
-  // Debug toggle
-  let open = false;
-  $("toggleJson").onclick = () => {
-    open = !open;
-    $("jsonWrap").style.display = open ? "block" : "none";
-    $("toggleJson").textContent = open ? "Hide raw JSON" : "Show raw JSON";
-  };
-</script>
 </body>
 </html>
