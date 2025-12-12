@@ -3,221 +3,219 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>CleanSlateAI — MVP</title>
+  <title>CleanSlateAI — Debt Clarity MVP</title>
+
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; margin: 0; padding: 24px; background:#0b0b0b; color:#f5f5f5; }
-    .wrap { max-width: 980px; margin: 0 auto; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      margin: 0;
+      padding: 24px;
+      background: #0b0b0b;
+      color: #f5f5f5;
+    }
+    .wrap { max-width: 1000px; margin: 0 auto; }
     h1 { margin: 0 0 6px; font-size: 26px; }
-    .sub { margin: 0 0 18px; color:#bdbdbd; }
+    .sub { margin: 0 0 18px; color: #bdbdbd; }
+
     .grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
-    @media (min-width: 900px) { .grid { grid-template-columns: 1fr 1fr; } }
-    .card { background:#141414; border:1px solid #2a2a2a; border-radius: 14px; padding: 16px; }
-    label { display:block; font-size: 12px; color:#bdbdbd; margin-bottom: 6px; }
-    input, textarea { width: 100%; box-sizing: border-box; border-radius: 10px; border:1px solid #2a2a2a; background:#0f0f0f; color:#f5f5f5; padding: 10px; }
-    textarea { min-height: 220px; resize: vertical; }
-    .row { display:flex; gap: 10px; }
-    .row > div { flex: 1; }
-    button { width: 100%; border:0; border-radius: 12px; padding: 12px; background:#f5f5f5; color:#0b0b0b; font-weight: 700; cursor:pointer; }
-    button:disabled { opacity: .6; cursor:not-allowed; }
-    .muted { color:#bdbdbd; font-size: 12px; }
-    .pill { display:inline-block; padding: 4px 10px; border-radius: 999px; border:1px solid #2a2a2a; background:#0f0f0f; font-size: 12px; color:#d7d7d7; }
-    .k { color:#bdbdbd; font-size: 12px; }
-    .v { font-size: 14px; }
-    .hr { height:1px; background:#2a2a2a; margin: 12px 0; }
-    pre { white-space: pre-wrap; word-break: break-word; background:#0f0f0f; border:1px solid #2a2a2a; padding: 12px; border-radius: 12px; font-size: 12px; color:#dcdcdc; overflow:auto; }
-    ul { margin: 8px 0 0 18px; }
+    @media (min-width: 900px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    .card {
+      background: #141414;
+      border: 1px solid #2a2a2a;
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    label { display:block; font-size:12px; color:#bdbdbd; margin-bottom:6px; }
+    input, textarea {
+      width:100%;
+      box-sizing:border-box;
+      border-radius:10px;
+      border:1px solid #2a2a2a;
+      background:#0f0f0f;
+      color:#f5f5f5;
+      padding:10px;
+    }
+    textarea { min-height:220px; resize:vertical; }
+
+    .row { display:flex; gap:10px; margin-top:12px; }
+    .row > div { flex:1; }
+
+    button {
+      border:0;
+      border-radius:12px;
+      padding:12px;
+      background:#f5f5f5;
+      color:#0b0b0b;
+      font-weight:700;
+      cursor:pointer;
+    }
+    button:disabled { opacity:.6; cursor:not-allowed; }
+
+    .muted { color:#bdbdbd; font-size:12px; }
+    .pill {
+      display:inline-block;
+      padding:4px 10px;
+      border-radius:999px;
+      border:1px solid #2a2a2a;
+      background:#0f0f0f;
+      font-size:12px;
+      color:#d7d7d7;
+    }
+    .k { color:#bdbdbd; font-size:12px; }
+    .v { font-size:14px; }
+    .hr { height:1px; background:#2a2a2a; margin:12px 0; }
+
+    ul { margin:8px 0 0 18px; }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background:#0f0f0f;
+      border:1px solid #2a2a2a;
+      padding:12px;
+      border-radius:12px;
+      font-size:12px;
+      color:#dcdcdc;
+    }
+
     .ok { color:#7CFC98; }
     .err { color:#FF7B7B; }
   </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <h1>CleanSlateAI — Debt Clarity MVP</h1>
-    <p class="sub">Paste debt/collection messages. Get a calm summary, a 7-day plan, and scripts.</p>
+<div class="wrap">
+  <h1>CleanSlateAI — Debt Clarity MVP</h1>
+  <p class="sub">Paste collection messages. Get calm clarity and next steps.</p>
 
-    <div class="grid">
-      <div class="card">
-        <label for="rawText">Paste messages (SMS/WhatsApp/Email text)</label>
-        <textarea id="rawText" placeholder="Paste here..."></textarea>
+  <!-- INPUT -->
+  <div class="grid">
+    <div class="card">
+      <label>Paste messages</label>
+      <textarea id="rawText"></textarea>
 
-        <div class="row" style="margin-top:12px;">
-          <div>
-            <label for="salary">Salary (number)</label>
-            <input id="salary" inputmode="numeric" placeholder="e.g., 9000" />
-          </div>
-          <div>
-            <label for="essentials">Essentials (number)</label>
-            <input id="essentials" inputmode="numeric" placeholder="e.g., 6000" />
-          </div>
+      <div class="row">
+        <div>
+          <label>Salary</label>
+          <input id="salary" placeholder="9000">
         </div>
-
-        <div style="margin-top:12px;">
-          <button id="btn">Analyze</button>
-          <p class="muted" id="status" style="margin-top:10px;"></p>
+        <div>
+          <label>Essentials</label>
+          <input id="essentials" placeholder="6000">
         </div>
       </div>
 
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
-          <div>
-            <div class="k">Status</div>
-            <div class="v"><span class="pill" id="pill">—</span></div>
-          </div>
-          <div>
-            <div class="k">Stability</div>
-            <div class="v"><span class="pill" id="score">—</span></div>
-          </div>
-          <div>
-            <div class="k">Legal risk</div>
-            <div class="v"><span class="pill" id="risk">—</span></div>
-          </div>
-        </div>
-
-        <div class="hr"></div>
-
-        <div class="k">Plain English</div>
-        <div class="v" id="plain">—</div>
-
-        <div class="hr"></div>
-
-        <div class="k">What to do first</div>
-        <div class="v" id="first">—</div>
-
-        <div class="hr"></div>
-
-        <div class="k">Why this matters</div>
-        <div class="v" id="why">—</div>
+      <div style="margin-top:12px;">
+        <button id="btn">Analyze</button>
+        <p class="muted" id="status"></p>
       </div>
     </div>
 
-    <div class="grid" style="margin-top:14px;">
-      <div class="card">
-        <div class="k">Debts found</div>
-        <div id="debts">—</div>
-
-        <div class="hr"></div>
-
-        <div class="k">Collection messages</div>
-        <div id="msgs">—</div>
+    <!-- SUMMARY -->
+    <div class="card">
+      <div style="display:flex;gap:12px;">
+        <span class="pill" id="pill">—</span>
+        <span class="pill" id="score">—</span>
+        <span class="pill" id="risk">—</span>
       </div>
 
-      <div class="card">
-        <div class="k">Next 7 days plan</div>
-        <div id="plan">—</div>
+      <div class="hr"></div>
+      <div class="k">Plain English</div>
+      <div class="v" id="plain">—</div>
 
-        <div class="hr"></div>
+      <div class="hr"></div>
+      <div class="k">What to do first</div>
+      <div class="v" id="first">—</div>
 
-        <div class="k">Negotiation scripts</div>
-        <div id="scripts">—</div>
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:14px;">
-      <div class="k">Raw JSON (debug)</div>
-      <pre id="json">—</pre>
+      <div class="hr"></div>
+      <div class="k">Why this matters</div>
+      <div class="v" id="why">—</div>
     </div>
   </div>
 
+  <!-- DETAILS -->
+  <div class="grid" style="margin-top:14px;">
+    <div class="card">
+      <div class="k">Debts</div>
+      <div id="debts">—</div>
+      <div class="hr"></div>
+      <div class="k">Collection messages</div>
+      <div id="msgs">—</div>
+    </div>
+
+    <div class="card">
+      <div class="k">Next 7 days</div>
+      <div id="plan">—</div>
+      <div class="hr"></div>
+      <div class="k">Negotiation scripts</div>
+      <div id="scripts">—</div>
+    </div>
+  </div>
+
+  <!-- DEBUG -->
+  <div class="card" style="margin-top:14px;">
+    <div style="display:flex;justify-content:space-between;">
+      <div class="k">Debug</div>
+      <button id="toggleJson">Show raw JSON</button>
+    </div>
+    <div id="jsonWrap" style="display:none;margin-top:12px;">
+      <pre id="json">—</pre>
+    </div>
+  </div>
+</div>
+
 <script>
-  const $ = (id) => document.getElementById(id);
+const $ = id => document.getElementById(id);
 
-  function numOrNull(v){
-    if (v === "" || v === null || v === undefined) return null;
-    const n = Number(v);
-    return Number.isFinite(n) ? n : null;
-  }
+$("btn").onclick = async () => {
+  $("status").textContent = "Working…";
+  const res = await fetch("/api/generate-plan", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({
+      rawText:$("rawText").value,
+      salary:Number($("salary").value)||null,
+      essentials:Number($("essentials").value)||null
+    })
+  });
+  const d = await res.json();
 
-  function esc(s){
-    return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-  }
+  $("pill").textContent = d.calm_summary.status;
+  $("score").textContent = d.risk_assessment.stability_score_0_to_100;
+  $("risk").textContent = d.risk_assessment.immediate_legal_risk;
+  $("plain").textContent = d.calm_summary.plain_english;
+  $("first").textContent = d.calm_summary.what_to_do_first;
+  $("why").textContent = d.calm_summary.why_this_matters;
 
-  $("btn").addEventListener("click", run);
+  $("debts").innerHTML = "<ul>" + d.extracted.debts.map(x =>
+    `<li>${x.account_name}: min ${x.minimum_due ?? "—"}, total ${x.total_due ?? "—"}</li>`
+  ).join("") + "</ul>";
 
-  async function run(){
-    const btn = $("btn");
-    const status = $("status");
-    btn.disabled = true;
-    status.textContent = "Working…";
+  $("msgs").innerHTML = "<ul>" + d.extracted.collection_messages.map(x =>
+    `<li>${x.text}</li>`
+  ).join("") + "</ul>";
 
-    const rawText = $("rawText").value.trim();
-    const salary = numOrNull($("salary").value.trim());
-    const essentials = numOrNull($("essentials").value.trim());
+  $("plan").innerHTML = "<ul>" + d.next_7_days_plan.map(x =>
+    `<li>Day ${x.day}: ${x.action}</li>`
+  ).join("") + "</ul>";
 
-    if(!rawText){
-      status.innerHTML = '<span class="err">Please paste some text first.</span>';
-      btn.disabled = false;
-      return;
-    }
+  $("scripts").innerHTML = "<ul>" + d.negotiation_scripts.default.what_to_say.map(x =>
+    `<li>${x}</li>`
+  ).join("") + "</ul>";
 
-    try{
-      const res = await fetch("/api/generate-plan", {
-        method: "POST",
-        headers: { "Content-Type":"application/json" },
-        body: JSON.stringify({ rawText, salary, essentials })
-      });
+  $("json").textContent = JSON.stringify(d,null,2);
+  $("status").textContent = "Done.";
+};
 
-      const data = await res.json().catch(() => null);
-
-      if(!res.ok){
-        status.innerHTML = '<span class="err">Server error:</span> ' + esc(JSON.stringify(data || {status:res.status}, null, 2));
-        btn.disabled = false;
-        return;
-      }
-
-      status.innerHTML = '<span class="ok">Done.</span>';
-      render(data);
-    }catch(e){
-      status.innerHTML = '<span class="err">Network/runtime error:</span> ' + esc(e.message || String(e));
-    }finally{
-      btn.disabled = false;
-    }
-  }
-
-  function render(d){
-    $("pill").textContent = d?.calm_summary?.status || "—";
-    $("score").textContent = (d?.risk_assessment?.stability_score_0_to_100 ?? "—");
-    $("risk").textContent = d?.risk_assessment?.immediate_legal_risk || "—";
-
-    $("plain").textContent = d?.calm_summary?.plain_english || "—";
-    $("first").textContent = d?.calm_summary?.what_to_do_first || "—";
-    $("why").textContent = d?.calm_summary?.why_this_matters || "—";
-
-    const debts = (d?.extracted?.debts || []);
-    $("debts").innerHTML = debts.length
-      ? "<ul>" + debts.map(x => {
-          const min = (x.minimum_due === null ? "—" : x.minimum_due);
-          const tot = (x.total_due === null ? "—" : x.total_due);
-          return `<li><b>${esc(x.account_name)}</b> (${esc(x.type)}) — min: <b>${esc(min)}</b>, total: <b>${esc(tot)}</b> ${x.currency ? esc(x.currency) : ""}</li>`;
-        }).join("") + "</ul>"
-      : "—";
-
-    const msgs = (d?.extracted?.collection_messages || []);
-    $("msgs").innerHTML = msgs.length
-      ? "<ul>" + msgs.map(m => `<li><b>${esc(m.risk_tag)}</b>: ${esc(m.text)} <span class="muted">(${esc(m.note)})</span></li>`).join("") + "</ul>"
-      : "—";
-
-    const plan = (d?.next_7_days_plan || []);
-    $("plan").innerHTML = plan.length
-      ? "<ul>" + plan.map(p => `<li><b>Day ${esc(p.day)}</b>: ${esc(p.action)} <span class="muted">— ${esc(p.reason)}</span>${p.estimated_cost !== null ? ` <span class="pill">cost: ${esc(p.estimated_cost)}</span>` : ""}</li>`).join("") + "</ul>"
-      : "—";
-
-    const scripts = d?.negotiation_scripts || {};
-    const keys = Object.keys(scripts);
-    let html = "";
-    for(const k of keys){
-      const s = scripts[k];
-      html += `<div style="margin-bottom:12px;"><div class="pill">${esc(k)}</div>`;
-      html += `<div class="muted" style="margin-top:6px;">When to contact: ${esc(s.when_to_contact || "—")}</div>`;
-      html += `<div style="margin-top:6px;"><b>What to say</b><ul>${(s.what_to_say||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`;
-      html += `<div style="margin-top:6px;"><b>What NOT to say</b><ul>${(s.what_not_to_say||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`;
-      html += `<div class="muted">Follow up window (days): ${esc(s.follow_up_window_days ?? "—")}</div>`;
-      html += `</div>`;
-    }
-    $("scripts").innerHTML = html || "—";
-
-    $("json").textContent = JSON.stringify(d, null, 2);
-  }
+let open=false;
+$("toggleJson").onclick=()=>{
+  open=!open;
+  $("jsonWrap").style.display=open?"block":"none";
+  $("toggleJson").textContent=open?"Hide raw JSON":"Show raw JSON";
+};
 </script>
-
 </body>
 </html>
