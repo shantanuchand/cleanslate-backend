@@ -55,6 +55,17 @@
     }
     button:disabled { opacity:.6; cursor:not-allowed; }
 
+    .btnRow { display:flex; gap:10px; flex-wrap: wrap; margin-top:12px; }
+    .btnSmall {
+      width:auto;
+      padding:10px 14px;
+      border-radius:10px;
+      background:#f5f5f5;
+      color:#0b0b0b;
+      font-weight:700;
+      cursor:pointer;
+    }
+
     .muted { color:#bdbdbd; font-size:12px; }
     .pill {
       display:inline-block;
@@ -83,6 +94,23 @@
 
     .ok { color:#7CFC98; }
     .err { color:#FF7B7B; }
+
+    .toast {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0f0f0f;
+      border: 1px solid #2a2a2a;
+      color: #f5f5f5;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease;
+    }
+    .toast.show { opacity: 1; }
   </style>
 </head>
 
@@ -95,28 +123,29 @@
   <div class="grid">
     <div class="card">
       <label>Paste messages</label>
-      <textarea id="rawText"></textarea>
+      <textarea id="rawText" placeholder="Paste SMS/WhatsApp/Email text here…"></textarea>
 
       <div class="row">
         <div>
           <label>Salary</label>
-          <input id="salary" placeholder="9000">
+          <input id="salary" inputmode="numeric" placeholder="9000">
         </div>
         <div>
           <label>Essentials</label>
-          <input id="essentials" placeholder="6000">
+          <input id="essentials" inputmode="numeric" placeholder="6000">
         </div>
       </div>
 
-      <div style="margin-top:12px;">
+      <div class="btnRow">
         <button id="btn">Analyze</button>
-        <p class="muted" id="status"></p>
       </div>
+
+      <p class="muted" id="status" style="margin-top:10px;"></p>
     </div>
 
     <!-- SUMMARY -->
     <div class="card">
-      <div style="display:flex;gap:12px;">
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
         <span class="pill" id="pill">—</span>
         <span class="pill" id="score">—</span>
         <span class="pill" id="risk">—</span>
@@ -133,33 +162,54 @@
       <div class="hr"></div>
       <div class="k">Why this matters</div>
       <div class="v" id="why">—</div>
+
+      <div class="btnRow">
+        <button class="btnSmall" id="copySummary" disabled>Copy summary</button>
+        <button class="btnSmall" id="copyPlan" disabled>Copy 7-day plan</button>
+      </div>
     </div>
   </div>
 
   <!-- DETAILS -->
   <div class="grid" style="margin-top:14px;">
     <div class="card">
-      <div class="k">Debts</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+        <div class="k">Debts</div>
+        <button class="btnSmall" id="copyDebts" disabled>Copy debts</button>
+      </div>
       <div id="debts">—</div>
+
       <div class="hr"></div>
-      <div class="k">Collection messages</div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+        <div class="k">Collection messages</div>
+        <button class="btnSmall" id="copyMsgs" disabled>Copy messages</button>
+      </div>
       <div id="msgs">—</div>
     </div>
 
     <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+        <div class="k">Negotiation scripts (Default)</div>
+        <button class="btnSmall" id="copyScripts" disabled>Copy script</button>
+      </div>
+      <div id="scripts">—</div>
+
+      <div class="hr"></div>
+
       <div class="k">Next 7 days</div>
       <div id="plan">—</div>
-      <div class="hr"></div>
-      <div class="k">Negotiation scripts</div>
-      <div id="scripts">—</div>
     </div>
   </div>
 
   <!-- DEBUG -->
   <div class="card" style="margin-top:14px;">
-    <div style="display:flex;justify-content:space-between;">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
       <div class="k">Debug</div>
-      <button id="toggleJson">Show raw JSON</button>
+      <div class="btnRow" style="margin-top:0;">
+        <button class="btnSmall" id="toggleJson">Show raw JSON</button>
+        <button class="btnSmall" id="copyJson" disabled>Copy JSON</button>
+      </div>
     </div>
     <div id="jsonWrap" style="display:none;margin-top:12px;">
       <pre id="json">—</pre>
@@ -167,55 +217,191 @@
   </div>
 </div>
 
+<div class="toast" id="toast">Copied ✅</div>
+
 <script>
-const $ = id => document.getElementById(id);
+  const $ = (id) => document.getElementById(id);
 
-$("btn").onclick = async () => {
-  $("status").textContent = "Working…";
-  const res = await fetch("/api/generate-plan", {
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({
-      rawText:$("rawText").value,
-      salary:Number($("salary").value)||null,
-      essentials:Number($("essentials").value)||null
-    })
-  });
-  const d = await res.json();
+  let latest = null;
 
-  $("pill").textContent = d.calm_summary.status;
-  $("score").textContent = d.risk_assessment.stability_score_0_to_100;
-  $("risk").textContent = d.risk_assessment.immediate_legal_risk;
-  $("plain").textContent = d.calm_summary.plain_english;
-  $("first").textContent = d.calm_summary.what_to_do_first;
-  $("why").textContent = d.calm_summary.why_this_matters;
+  function toNumberOrNull(v){
+    const n = Number(String(v || "").trim());
+    return Number.isFinite(n) ? n : null;
+  }
 
-  $("debts").innerHTML = "<ul>" + d.extracted.debts.map(x =>
-    `<li>${x.account_name}: min ${x.minimum_due ?? "—"}, total ${x.total_due ?? "—"}</li>`
-  ).join("") + "</ul>";
+  function showToast(text){
+    const t = $("toast");
+    t.textContent = text || "Copied ✅";
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 1200);
+  }
 
-  $("msgs").innerHTML = "<ul>" + d.extracted.collection_messages.map(x =>
-    `<li>${x.text}</li>`
-  ).join("") + "</ul>";
+  async function copyText(text){
+    try{
+      await navigator.clipboard.writeText(text);
+      showToast("Copied ✅");
+    }catch(e){
+      // fallback for older permissions
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      showToast("Copied ✅");
+    }
+  }
 
-  $("plan").innerHTML = "<ul>" + d.next_7_days_plan.map(x =>
-    `<li>Day ${x.day}: ${x.action}</li>`
-  ).join("") + "</ul>";
+  function enableCopyButtons(on){
+    const ids = ["copySummary","copyPlan","copyDebts","copyMsgs","copyScripts","copyJson"];
+    ids.forEach(id => { $(id).disabled = !on; });
+  }
 
-  $("scripts").innerHTML = "<ul>" + d.negotiation_scripts.default.what_to_say.map(x =>
-    `<li>${x}</li>`
-  ).join("") + "</ul>";
+  $("btn").onclick = async () => {
+    $("status").textContent = "Working…";
+    enableCopyButtons(false);
 
-  $("json").textContent = JSON.stringify(d,null,2);
-  $("status").textContent = "Done.";
-};
+    const payload = {
+      rawText: $("rawText").value || "",
+      salary: toNumberOrNull($("salary").value),
+      essentials: toNumberOrNull($("essentials").value),
+    };
 
-let open=false;
-$("toggleJson").onclick=()=>{
-  open=!open;
-  $("jsonWrap").style.display=open?"block":"none";
-  $("toggleJson").textContent=open?"Hide raw JSON":"Show raw JSON";
-};
+    if(!payload.rawText.trim()){
+      $("status").innerHTML = '<span class="err">Paste some text first.</span>';
+      return;
+    }
+
+    try{
+      const res = await fetch("/api/generate-plan", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const d = await res.json();
+
+      if(!res.ok){
+        $("status").innerHTML = '<span class="err">Server error:</span> ' + (d?.error || "Unknown");
+        return;
+      }
+
+      latest = d;
+
+      $("pill").textContent = d?.calm_summary?.status || "—";
+      $("score").textContent = (d?.risk_assessment?.stability_score_0_to_100 ?? "—");
+      $("risk").textContent = d?.risk_assessment?.immediate_legal_risk || "—";
+      $("plain").textContent = d?.calm_summary?.plain_english || "—";
+      $("first").textContent = d?.calm_summary?.what_to_do_first || "—";
+      $("why").textContent = d?.calm_summary?.why_this_matters || "—";
+
+      // Debts list
+      const debts = d?.extracted?.debts || [];
+      $("debts").innerHTML = debts.length
+        ? "<ul>" + debts.map(x =>
+          `<li><b>${x.account_name}</b> — min: ${x.minimum_due ?? "—"}, total: ${x.total_due ?? "—"} ${x.currency ?? ""}</li>`
+        ).join("") + "</ul>"
+        : "—";
+
+      // Messages list
+      const msgs = d?.extracted?.collection_messages || [];
+      $("msgs").innerHTML = msgs.length
+        ? "<ul>" + msgs.map(x => `<li><b>${x.risk_tag}</b>: ${x.text}</li>`).join("") + "</ul>"
+        : "—";
+
+      // Plan list
+      const plan = d?.next_7_days_plan || [];
+      $("plan").innerHTML = plan.length
+        ? "<ul>" + plan.map(x =>
+          `<li><b>Day ${x.day}</b>: ${x.action}${x.estimated_cost != null ? ` <span class="pill">cost: ${x.estimated_cost}</span>` : ""}</li>`
+        ).join("") + "</ul>"
+        : "—";
+
+      // Scripts (default)
+      const s = d?.negotiation_scripts?.default || null;
+      $("scripts").innerHTML = s
+        ? `<div class="muted">When to contact: ${s.when_to_contact || "—"}</div>
+           <div style="margin-top:10px;"><b>What to say</b><ul>${(s.what_to_say||[]).map(x=>`<li>${x}</li>`).join("")}</ul></div>
+           <div style="margin-top:10px;"><b>What NOT to say</b><ul>${(s.what_not_to_say||[]).map(x=>`<li>${x}</li>`).join("")}</ul></div>`
+        : "—";
+
+      $("json").textContent = JSON.stringify(d, null, 2);
+
+      enableCopyButtons(true);
+      $("status").innerHTML = '<span class="ok">Done.</span>';
+
+    }catch(e){
+      $("status").innerHTML = '<span class="err">Network/runtime error.</span>';
+    }
+  };
+
+  // Copy handlers
+  $("copySummary").onclick = () => {
+    if(!latest) return;
+    const text =
+`CleanSlateAI — Summary
+Status: ${latest.calm_summary.status}
+Plain English: ${latest.calm_summary.plain_english}
+
+What to do first: ${latest.calm_summary.what_to_do_first}
+Why this matters: ${latest.calm_summary.why_this_matters}
+
+Legal risk: ${latest.risk_assessment.immediate_legal_risk}
+Collection pressure: ${latest.risk_assessment.collection_pressure_level}
+Stability score: ${latest.risk_assessment.stability_score_0_to_100 ?? "—"}`;
+    copyText(text);
+  };
+
+  $("copyPlan").onclick = () => {
+    if(!latest) return;
+    const plan = latest.next_7_days_plan || [];
+    const lines = plan.map(p => `Day ${p.day}: ${p.action}${p.estimated_cost != null ? ` (cost: ${p.estimated_cost})` : ""}`);
+    copyText("CleanSlateAI — Next 7 Days\n" + lines.join("\n"));
+  };
+
+  $("copyDebts").onclick = () => {
+    if(!latest) return;
+    const debts = latest.extracted.debts || [];
+    const lines = debts.map(d => `${d.account_name} | min: ${d.minimum_due ?? "—"} | total: ${d.total_due ?? "—"} | ${d.currency ?? ""}`.trim());
+    copyText("CleanSlateAI — Debts\n" + (lines.length ? lines.join("\n") : "—"));
+  };
+
+  $("copyMsgs").onclick = () => {
+    if(!latest) return;
+    const msgs = latest.extracted.collection_messages || [];
+    const lines = msgs.map(m => `${m.risk_tag.toUpperCase()}: ${m.text}`);
+    copyText("CleanSlateAI — Collection Messages\n" + (lines.length ? lines.join("\n") : "—"));
+  };
+
+  $("copyScripts").onclick = () => {
+    if(!latest) return;
+    const s = latest.negotiation_scripts.default;
+    const text =
+`CleanSlateAI — Negotiation Script (Default)
+When to contact: ${s.when_to_contact}
+
+What to say:
+- ${(s.what_to_say||[]).join("\n- ")}
+
+What NOT to say:
+- ${(s.what_not_to_say||[]).join("\n- ")}
+
+Follow up window (days): ${s.follow_up_window_days}`;
+    copyText(text);
+  };
+
+  $("copyJson").onclick = () => {
+    if(!latest) return;
+    copyText(JSON.stringify(latest, null, 2));
+  };
+
+  // Debug toggle
+  let open = false;
+  $("toggleJson").onclick = () => {
+    open = !open;
+    $("jsonWrap").style.display = open ? "block" : "none";
+    $("toggleJson").textContent = open ? "Hide raw JSON" : "Show raw JSON";
+  };
 </script>
 </body>
 </html>
