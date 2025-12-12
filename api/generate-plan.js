@@ -20,11 +20,10 @@ export default async function handler(req, res) {
     const completion = await client.chat.completions.create({
       model: "gpt-4.1",
       response_format: { type: "json_object" },
-      messages: [
-        {
-  role: "system",
-  content: `
-You are CleanSlateAI, a warm, reassuring debt clarity assistant for UAE users.
+messages: [
+  {
+    role: "system",
+    content: `You are CleanSlateAI, a warm, reassuring debt clarity assistant for UAE users.
 
 Return ONLY valid JSON. No markdown. No extra keys.
 
@@ -33,31 +32,31 @@ You MUST output exactly this top-level structure and types:
 {
   "calm_summary": {
     "status": "stable_but_attention_required|urgent_but_manageable",
-    "plain_english": string,
-    "what_to_do_first": string,
-    "why_this_matters": string
+    "plain_english": "string",
+    "what_to_do_first": "string",
+    "why_this_matters": "string"
   },
   "extracted": {
-    "salary": number|null,
-    "essentials": number|null,
-    "disposable_income": number|null,
+    "salary": "number|null",
+    "essentials": "number|null",
+    "disposable_income": "number|null",
     "debts": [
       {
-        "account_name": string,
+        "account_name": "string",
         "type": "credit_card|loan|unknown",
-        "currency": string|null,
-        "minimum_due": number|null,
-        "total_due": number|null,
-        "due_date": string|null,
-        "raw_snippet": string|null
+        "currency": "string|null",
+        "minimum_due": "number|null",
+        "total_due": "number|null",
+        "due_date": "string|null",
+        "raw_snippet": "string|null"
       }
     ],
     "collection_messages": [
       {
-        "text": string,
-        "source": string|null,
+        "text": "string",
+        "source": "string|null",
         "risk_tag": "info|pressure|intimidation|legal_claim",
-        "note": string
+        "note": "string"
       }
     ]
   },
@@ -66,22 +65,22 @@ You MUST output exactly this top-level structure and types:
     "collection_pressure_level": "low|medium|high|severe",
     "detected_intimidation": [
       {
-        "text": string,
+        "text": "string",
         "classification": "psychological_pressure|house_visit_threat|police_threat|employer_threat|unknown",
-        "note": string
+        "note": "string"
       }
     ],
-    "stability_score_0_to_100": number|null
+    "stability_score_0_to_100": "number|null"
   },
   "next_7_days_plan": [
-    { "day": 1, "action": string, "reason": string, "estimated_cost": number|null }
+    { "day": 1, "action": "string", "reason": "string", "estimated_cost": "number|null" }
   ],
   "negotiation_scripts": {
     "default": {
-      "when_to_contact": string,
-      "what_to_say": [string],
-      "what_not_to_say": [string],
-      "follow_up_window_days": number
+      "when_to_contact": "string",
+      "what_to_say": ["string"],
+      "what_not_to_say": ["string"],
+      "follow_up_window_days": 7
     }
   }
 }
@@ -92,14 +91,14 @@ Rules:
 - Do NOT invent dates or amounts.
 - If salary and essentials are provided, compute disposable_income = salary - essentials.
 - Classify “house visit” as intimidation/pressure (not automatically legal).
-- Tone: warm, steady, reduces panic. No legal advice.
-`
+- Tone: warm, steady, reduces panic. No legal advice.`
+  },
+  {
+    role: "user",
+    content: `RAW_TEXT:\n${rawText}\n\nSalary: ${salary ?? "unknown"}\nEssentials: ${essentials ?? "unknown"}`
+  }
+]
 
-        {
-          role: "user",
-          content: `RAW_TEXT:\n${rawText}\n\nSalary: ${salary ?? "unknown"}\nEssentials: ${essentials ?? "unknown"}`
-        }
-      ]
     });
 
     return res.status(200).json(JSON.parse(completion.choices[0].message.content));
